@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,6 @@ namespace PruebaSantiagoAlzate.Controllers
     public class ProductosController : Controller
     {
         private readonly DbpruebaSantiagoAlzateContext _context;
-
         public ProductosController(DbpruebaSantiagoAlzateContext context)
         {
             _context = context;
@@ -22,6 +22,24 @@ namespace PruebaSantiagoAlzate.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Productos.ToListAsync());
+        }
+
+        public ActionResult operaccion(int Calorias, int Peso)
+        {
+            List<Producto> elementosOrdenados = _context.Productos.OrderBy(e => e.Calorias).ToList();
+            List<Producto> conjuntoOptimo = new List<Producto>();
+            int pesosuma = 0;
+            int caloriassuma = 0;
+            foreach (var elemento in elementosOrdenados)
+            {
+                if (pesosuma + elemento.Peso <= Peso && caloriassuma + elemento.Calorias <= Calorias)
+                {
+                    conjuntoOptimo.Add(elemento);
+                    pesosuma = (int)(pesosuma + elemento.Peso);
+                    caloriassuma = (int)(caloriassuma + elemento.Calorias);
+                }
+            }
+            return View(conjuntoOptimo.ToList());
         }
 
         // GET: Productos/Details/5
